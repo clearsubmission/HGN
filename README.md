@@ -4,7 +4,9 @@ Official implementation of "Hysteresis-Gated Networks: Mitigating Catastrophic F
 
 ## Requirements
 torch>=2.0
+
 torchvision>=0.15
+
 numpy
 ## Datasets
 - Split-CIFAR-100: downloaded automatically via torchvision
