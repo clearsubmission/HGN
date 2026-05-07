@@ -103,7 +103,7 @@ def train_continual(model, task_loaders, device, args, is_mnist=False, num_class
 
         if task_id > 0:
             if use_hgn:
-                h_stats_log.append(reset_all_fatigue(model))
+                pass  # fatigue decays naturally via lambda — no explicit reset
             if use_lwf:
                 lwf.update_old_model()
             if use_ewc:
