@@ -11,6 +11,7 @@ from model import resnet18_hgn, resnet18_baseline, reset_all_fatigue, count_dead
 from hgn import HGNLinear
 from si import SI
 from lwf import LwF
+from derpp import DERppBuffer, derpp_loss
 
 
 class EWC:
@@ -85,12 +86,14 @@ def train_continual(model, task_loaders, device, args, is_mnist=False, num_class
     criterion   = nn.CrossEntropyLoss()
     n_tasks     = len(task_loaders)
     use_ewc     = args.model in ("ewc", "hgn_ewc")
-    use_hgn     = args.model in ("hgn", "hgn_ewc", "hgn_si", "hgn_lwf")
+    use_hgn     = args.model in ("hgn", "hgn_ewc", "hgn_si", "hgn_lwf", "hgn_derpp")
     use_si      = args.model in ("si","hgn_si")
     use_lwf     = args.model in ("lwf","hgn_lwf")
+    use_derpp   = args.model in ("derpp","hgn_derpp")
     ewc_tasks   = []
     si = SI(model) if use_si else None
     lwf = LwF(model, device=device) if use_lwf else None
+    derpp_buf = DERppBuffer(buffer_size=500, device=device) if use_derpp else None
     acc_matrix  = torch.zeros(n_tasks, n_tasks)
     dead_pcts   = []
     h_stats_log = []
@@ -119,6 +122,9 @@ def train_continual(model, task_loaders, device, args, is_mnist=False, num_class
                 loss = criterion(outputs, y)
                 if use_lwf:
                     loss = loss + lwf.loss(x)
+                if use_derpp and len(derpp_buf) > 0:
+                    x_buf, y_buf, logits_buf = derpp_buf.sample(min(64, len(derpp_buf)))
+                    loss = loss + derpp_loss(model, x_buf, y_buf, logits_buf)
                 if use_si:
                     loss = loss + si.penalty()
                 for ewc in ewc_tasks:
@@ -128,6 +134,10 @@ def train_continual(model, task_loaders, device, args, is_mnist=False, num_class
                     si.accumulate()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=10.0)
                 optimizer.step()
+                if use_derpp:
+                    with torch.no_grad():
+                        logits_now = model(x)
+                    derpp_buf.add(x, y, logits_now)
                 total_loss += loss.item()
             if (epoch + 1) % 5 == 0 or args.epochs_per_task <= 2:
                 print(f"  Epoch {epoch+1:3d}  loss={total_loss/len(train_loader):.4f}",
@@ -165,7 +175,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--exp",             default="e1")
     p.add_argument("--model",           default="hgn",
-                   choices=["hgn","baseline","ewc","hgn_ewc","si","lwf","hgn_si","hgn_lwf"])
+                   choices=["hgn","baseline","ewc","hgn_ewc","si","lwf","hgn_si","hgn_lwf","derpp","hgn_derpp"])
     p.add_argument("--dataset",         default="split_cifar100",
                    choices=["split_cifar100","split_cifar10",
                             "split_mnist","permuted_mnist","split_stl10","split_fashionmnist","split_tinyimagenet"])
@@ -212,7 +222,7 @@ def main():
     if is_mnist:
         model = get_mlp(use_hgn=(args.model != "baseline"),
                         lam=args.lam, alpha=args.alpha)
-    elif args.model in ("hgn", "hgn_ewc", "hgn_si", "hgn_lwf"):
+    elif args.model in ("hgn", "hgn_ewc", "hgn_si", "hgn_lwf", "hgn_derpp"):
         model = resnet18_hgn(num_classes=num_classes,
                              lam=args.lam, alpha=args.alpha,
                              pretrained=args.pretrained)

@@ -71,6 +71,12 @@ tinyimagenet_pretrained,lwf,456,11.05,-36.5684,split_tinyimagenet,True,10,0.7,1.
 tinyimagenet_pretrained,si,123,9.96,-3.6737,split_tinyimagenet,True,10,0.7,1.2
 tinyimagenet_pretrained,si,42,10.01,-3.2632,split_tinyimagenet,True,10,0.7,1.2
 tinyimagenet_pretrained,si,456,10.09,-3.0421,split_tinyimagenet,True,10,0.7,1.2
+cifar100_derpp,derpp,123,64.2,-25.9368,split_cifar100,True,10,0.7,1.2
+cifar100_derpp,derpp,42,65.51,-24.6105,split_cifar100,True,10,0.7,1.2
+cifar100_derpp,derpp,456,65.9,-23.9895,split_cifar100,True,10,0.7,1.2
+cifar100_derpp,hgn_derpp,123,45.63,-4.9263,split_cifar100,True,10,0.7,1.2
+cifar100_derpp,hgn_derpp,42,48.75,-6.3895,split_cifar100,True,10,0.7,1.2
+cifar100_derpp,hgn_derpp,456,43.19,-5.9263,split_cifar100,True,10,0.7,1.2
 alpha_ablation,hgn,123,22.77,-26.8105,split_cifar100,False,10,0.7,0.0
 alpha_ablation,hgn,42,21.72,-28.9368,split_cifar100,False,10,0.7,0.0
 alpha_ablation,hgn,456,21.17,-29.2632,split_cifar100,False,10,0.7,0.0
