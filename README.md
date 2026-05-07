@@ -1,6 +1,6 @@
 # Hysteresis-Gated Networks (HGN)
 
-Official implementation of "Hysteresis-Gated Networks: Mitigating Catastrophic Forgetting Through Adaptive Neuron Fatigue" (NeurIPS 2026 submission).
+Official implementation of "Hysteresis-Gated Networks: Mitigating Catastrophic Forgetting Through Adaptive Neuron Fatigue".
 
 # Overview
 
