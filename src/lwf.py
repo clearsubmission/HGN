@@ -24,7 +24,7 @@ class LwF:
 
         with torch.no_grad():
             old_logits = self.old_model(x)
-            new_logits = self.model(x)
+        new_logits = self.model(x)
 
         soft_old = F.softmax(old_logits / T, dim=1)
         log_soft_new = F.log_softmax(new_logits / T, dim=1)
