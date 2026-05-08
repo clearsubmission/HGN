@@ -21,13 +21,25 @@ numpy
 ### Main result
 ```bash
 # HGN + EWC on Split-CIFAR-100 with pretrained ResNet-18
-python src/train.py --model hgn_ewc --dataset split_cifar100 --pretrained --seed 42
+python src/train.py
+--model hgn_ewc
+--dataset split_cifar100
+--pretrained
+--seed 42
 
 # HGN + SI on Split-CIFAR-100
-python src/train.py --model hgn_si --dataset split_cifar100 --pretrained --seed 42
+python src/train.py
+--model hgn_si
+--dataset split_cifar100
+--pretrained
+--seed 42
 
 # TinyImageNet
-python src/train.py --model hgn_ewc --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py
+--model hgn_ewc
+--dataset split_tinyimagenet
+--pretrained
+--seed 42
 ```
 
 ### Ablation studies
