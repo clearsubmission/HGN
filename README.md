@@ -18,7 +18,6 @@ numpy
 - Split-TinyImageNet: download from http://cs231n.stanford.edu/tiny-imagenet-200.zip and place in `data/`
 
 ## Running experiments
-## Running experiments
 
 ### Reproduce all main results (Table 1 — Split-CIFAR-100 pretrained)
 
