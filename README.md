@@ -18,28 +18,138 @@ numpy
 - Split-TinyImageNet: download from http://cs231n.stanford.edu/tiny-imagenet-200.zip and place in `data/`
 
 ## Running experiments
-### Main result
+## Running experiments
+
+### Reproduce all main results (Table 1 — Split-CIFAR-100 pretrained)
+
 ```bash
-# HGN + EWC on Split-CIFAR-100 with pretrained ResNet-18
-python src/train.py
---model hgn_ewc
---dataset split_cifar100
---pretrained
---seed 42
+# Fine-tuning baseline
+python src/train.py --model baseline --dataset split_cifar100 --pretrained --seed 42
 
-# HGN + SI on Split-CIFAR-100
-python src/train.py
---model hgn_si
---dataset split_cifar100
---pretrained
---seed 42
+# Weight regularization
+python src/train.py --model ewc --dataset split_cifar100 --pretrained --seed 42
+python src/train.py --model si  --dataset split_cifar100 --pretrained --seed 42
 
-# TinyImageNet
-python src/train.py
---model hgn_ewc
---dataset split_tinyimagenet
---pretrained
---seed 42
+# Knowledge distillation
+python src/train.py --model lwf --dataset split_cifar100 --pretrained --seed 42
+
+# Replay
+python src/train.py --model derpp --dataset split_cifar100 --pretrained --seed 42
+
+# HGN — activation-level regularization (ours)
+python src/train.py --model hgn     --dataset split_cifar100 --pretrained --seed 42
+python src/train.py --model hgn_ewc --dataset split_cifar100 --pretrained --seed 42
+python src/train.py --model hgn_si  --dataset split_cifar100 --pretrained --seed 42
+python src/train.py --model hgn_lwf --dataset split_cifar100 --pretrained --seed 42
+python src/train.py --model hgn_derpp --dataset split_cifar100 --pretrained --seed 42
+```
+
+### Reproduce all main results (Table 2 — Split-TinyImageNet pretrained)
+
+```bash
+# Fine-tuning baseline
+python src/train.py --model baseline --dataset split_tinyimagenet --pretrained --seed 42
+
+# Weight regularization
+python src/train.py --model ewc --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py --model si  --dataset split_tinyimagenet --pretrained --seed 42
+
+# Knowledge distillation
+python src/train.py --model lwf --dataset split_tinyimagenet --pretrained --seed 42
+
+# Replay
+python src/train.py --model derpp --dataset split_tinyimagenet --pretrained --seed 42
+
+# HGN (ours)
+python src/train.py --model hgn     --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py --model hgn_ewc --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py --model hgn_si  --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py --model hgn_lwf --dataset split_tinyimagenet --pretrained --seed 42
+python src/train.py --model hgn_derpp --dataset split_tinyimagenet --pretrained --seed 42
+```
+
+### Reproduce all 3 seeds (for mean ± std as reported in paper)
+
+```bash
+for MODEL in baseline ewc si lwf derpp hgn hgn_ewc hgn_si hgn_lwf hgn_derpp; do
+for SEED in 42 123 456; do
+    python src/train.py \
+        --model $MODEL \
+        --dataset split_cifar100 \
+        --lam 0.7 --alpha 1.2 \
+        --epochs_per_task 10 \
+        --seed $SEED \
+        --pretrained \
+        --output_dir results/cifar100/${MODEL}_s${SEED}
+done
+done
+```
+
+### Supplementary — random initialization (Table S1)
+
+```bash
+for MODEL in baseline ewc si lwf hgn hgn_ewc hgn_si hgn_lwf; do
+for SEED in 42 123 456; do
+    python src/train.py \
+        --model $MODEL \
+        --dataset split_cifar100 \
+        --lam 0.7 --alpha 1.2 \
+        --epochs_per_task 10 \
+        --seed $SEED \
+        --output_dir results/cifar100_random/${MODEL}_s${SEED}
+done
+done
+```
+
+### Ablation studies (Tables 3-4)
+
+```bash
+# Alpha ablation (suppression strength) — lambda=0.7 fixed
+for ALPHA in 0.0 0.5 1.0 1.2 1.5 2.0 3.0; do
+    python src/train.py \
+        --model hgn \
+        --dataset split_cifar100 \
+        --alpha $ALPHA --lam 0.7 \
+        --epochs_per_task 10 \
+        --seed 42 \
+        --output_dir results/ablation/alpha${ALPHA}_s42
+done
+
+# Lambda ablation (decay parameter) — alpha=1.2 fixed
+for LAM in 0.1 0.3 0.5 0.7 0.9 0.95 0.99; do
+    python src/train.py \
+        --model hgn \
+        --dataset split_cifar100 \
+        --lam $LAM --alpha 1.2 \
+        --epochs_per_task 10 \
+        --seed 42 \
+        --output_dir results/ablation/lam${LAM}_s42
+done
+```
+
+### Permuted-MNIST (Table S2)
+
+```bash
+for MODEL in baseline hgn ewc hgn_ewc; do
+    python src/train.py \
+        --model $MODEL \
+        --dataset permuted_mnist \
+        --epochs_per_task 10 \
+        --seed 42 \
+        --output_dir results/mnist/${MODEL}_s42
+done
+```
+
+### Default hyperparameters
+
+| Hyperparameter | Value | Description |
+|---|---|---|
+| `--lam` | 0.7 | HGN fatigue decay λ |
+| `--alpha` | 1.2 | HGN suppression strength α |
+| `--lr` | 1e-3 | Learning rate (Adam) |
+| `--epochs_per_task` | 10 | Epochs per task |
+| `--seed` | 42 | Random seed |
+| `--pretrained` | False | Use ImageNet pretrained ResNet-18 |
 ```
 
 ### Ablation studies
